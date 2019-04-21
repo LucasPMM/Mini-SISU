@@ -90,6 +90,18 @@ void lst_imprime(List *l){
 // 	}
 // }
 
+void lst_free_course(Course **c, int courseQtd){
+	int i;
+	for (i = 0; i < courseQtd; i++) {
+		List *p = c[i]->listOfStudents;
+		List *t = p->prox;
+		free(p);
+		p=t;
+	}
+	free(c);
+}
+
+
 List *lst_insere_ordenado(List *l, char studentName[100], float score, int firstOp, int secondOP){
 	List *novo;
 	List *ant = NULL;
@@ -178,26 +190,9 @@ void initSisu() {
 		lst_print_course(listOfCourses[i]);
 	}
 	
-	// Lista *l;
-	// int qtd;
-	// int i, aux;
+	// Remove sencond course option from students that have already passed on first option
 
-	// l = lst_cria();
 
-	// printf("\nDigite a quantidade de elementos:\t");
-	// scanf("%d",&qtd);
-
-	// for(i=qtd;i>0;i--){
-	// 	scanf("%d",&aux);
-	// 	l = lst_insere_ordenado(l,aux);
-	// }
-
-	// printf("Lista: \n");
-	// lst_imprime(l);
-
-	// l = lst_retira(l, 1);
-	// printf("Removeu o elemento 1 (se ele existir): \n");
-	// lst_imprime(l);
-
-	// lst_libera(l); criar uma função para liberar a lista de cursos
+	// Remocve list from memory
+	lst_free_course(listOfCourses, courseQtd);
 }
