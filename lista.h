@@ -3,6 +3,7 @@ struct list{
 	int firstOp; // first option of course
 	int secondOp; // second option of course
 
+	int secondOptionWasRemoved; // 0 => NO and 1 => YES
 	float score;
 
 	struct list *prox; // next student
@@ -26,9 +27,9 @@ void lst_imprime(List *l);
 
 int lst_vazia(List *l);
 
-List* lst_busca(List *l, int v);
+// List* lst_busca(List *l, int v);
 
-List *lst_retira(List *l, int v);
+// List *lst_retira(List *l, int v);
 
 void lst_libera(List *l);
 
