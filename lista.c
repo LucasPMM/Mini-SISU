@@ -3,10 +3,14 @@
 #include <string.h>
 #include "lista.h"
 
+// ------------------ Course Functions Start ------------------ //
+
+// Function to initialize course structure
 Course* lst_create_course(){
 	return NULL;
 }
 
+// Function to create an structure of course 
 Course* lst_insert_course(Course *l, char courseName[100], int positions){
 	int i;
 	Course *novo = (Course *) malloc (sizeof(Course));
@@ -17,6 +21,7 @@ Course* lst_insert_course(Course *l, char courseName[100], int positions){
 	return novo;
 }
 
+// Function to print one course and their properties
 void lst_print_course(Course *l){
 	printf("Nome do curso: %s\n", l->courseName);
 	printf("Número de vagas: %d\n\n", l->positions);
@@ -25,70 +30,7 @@ void lst_print_course(Course *l){
 	lst_imprime(l->listOfStudents);
 }
 
-List* lst_cria(){
-	return NULL;
-}
-
-// List* lst_insere(List *l, int i){
-// 	List *novo = (List *) malloc (sizeof(List));
-// 	novo->prox = l;
-// 	return novo;
-// }
-
-void lst_imprime(List *l){
-	List *p;
-	for(p=l;p!=NULL;p=p->prox){
-		printf("%s\t%.2f\t%d\t%d\n", p->studentName , p->score, p->firstOp, p->secondOp);
-	}
-	printf("\n");
-}
-
-// int lst_vazia(List *l){
-// 	if (l == NULL)
-// 		return 1;
-// 	else
-// 		return 0;
-// }
-
-List* lst_busca(List *l, char studentName[100]){
-	List *p;
-	for(p=l;p!=NULL;p=p->prox){
-		if(strcmp(p->studentName, studentName) == 0)
-			return p;
-	}
-	return NULL;
-}
-
-List *lst_retira(List *l, char studentName[100]){
-	List *ant = NULL;
-	List *p=l;
-	while(p!=NULL && strcmp(p->studentName, studentName) != 0) {
-		ant=p;
-		p=p->prox;
-	}
-
-	if (p==NULL){
-		return l;
-	}
-	if(ant==NULL)
-		l=p->prox;
-	else
-		ant->prox=p->prox;
-
-	free(p);
-
-	return l;
-}
-
-// void lst_libera(List *l){
-// 	List *p = l;
-// 	while(p!=NULL){
-// 		List *t = p->prox;
-// 		free(p);
-// 		p=t;
-// 	}
-// }
-
+// Function to free the occupied memory with the data of the structure course
 void lst_free_course(Course **c, int courseQtd){
 	int i;
 	for (i = 0; i < courseQtd; i++) {
@@ -102,7 +44,77 @@ void lst_free_course(Course **c, int courseQtd){
 	free(c);
 }
 
+// Function to read student informations
+Course **read_students(Course **listOfCourses) {
+	char studentName[100];
+	int firstOp, secondOP;
+	float score;
 
+	printf("Digite o nome do aluno: ");
+	fgets(studentName, sizeof(studentName), stdin);
+
+	scanf("%f%d%d", &score, &firstOp, &secondOP);
+	setbuf(stdin, NULL);
+	fflush(stdin);
+	
+	listOfCourses[firstOp]->listOfStudents = lst_insere_ordenado(listOfCourses[firstOp]->listOfStudents, studentName, score, firstOp, secondOP, 0);
+	listOfCourses[secondOP]->listOfStudents = lst_insere_ordenado(listOfCourses[secondOP]->listOfStudents, studentName, score, firstOp, secondOP, 0);
+
+	return listOfCourses;
+}
+
+// Function to read course informations
+Course *read_informations(Course *l) {
+	char courseName[100];
+	int positions;
+
+	printf("Digite o nome do curso: ");
+	fgets(courseName, sizeof(courseName), stdin);
+
+	printf("Digite a quantidade de vagas: ");
+	scanf("%d", &positions);
+	setbuf(stdin, NULL);
+	fflush(stdin);
+	return lst_insert_course(l, courseName, positions);
+}
+
+// ------------------ Course Functions End ------------------ //
+
+
+
+// ------------------ List Functions Start ------------------ //
+
+// Function to initialize list structure
+List* lst_cria(){
+	return NULL;
+}
+
+// Function to print list informations
+void lst_imprime(List *l){
+	List *p;
+	for(p=l;p!=NULL;p=p->prox){
+		printf("%s\t%.2f\t%d\t%d\n", p->studentName , p->score, p->firstOp, p->secondOp);
+	}
+	printf("\n");
+}
+
+// Function to remove an element from list
+List *lst_retira(List *l, char studentName[100]){
+	List *ant = NULL;
+	List *p=l;
+	while(p!=NULL && strcmp(p->studentName, studentName) != 0) {
+		ant=p;
+		p=p->prox;
+	}
+
+	if (p==NULL){ return l; }
+	if(ant==NULL) { l=p->prox; }
+	else { ant->prox=p->prox; }
+	free(p);
+	return l;
+}
+
+// Function to insert elements on list
 List *lst_insere_ordenado(List *l, char studentName[100], float score, int firstOp, int secondOP, int secondOptionWasRemoved){
 	List *novo;
 	List *ant = NULL;
@@ -124,13 +136,11 @@ List *lst_insere_ordenado(List *l, char studentName[100], float score, int first
 		for (i = 0; i < strlen(studentName); i++) {
 			novo->studentName[i] = studentName[i];
 		}
-		printf("olha o nome que chegou aquii %s\n", studentName);
 	} else {
 		for (i = 0; i < strlen(studentName) - 1; i++) {
 			novo->studentName[i] = studentName[i];
 		}
 	}
-
 
 	if (ant == NULL){
 		novo->prox = l;
@@ -140,42 +150,10 @@ List *lst_insere_ordenado(List *l, char studentName[100], float score, int first
 		novo->prox = ant->prox;
 		ant->prox = novo;
 	}
-
 	return l;
 }
 
-Course *read_informations(Course *l) {
-	char courseName[100];
-	int positions;
-
-	printf("Digite o nome do curso: ");
-	fgets(courseName, sizeof(courseName), stdin);
-
-	printf("Digite a quantidade de vagas: ");
-	scanf("%d", &positions);
-	setbuf(stdin, NULL);
-	fflush(stdin);
-	return lst_insert_course(l, courseName, positions);
-}
-
-Course **read_students(Course **listOfCourses) {
-	char studentName[100];
-	int firstOp, secondOP;
-	float score;
-
-	printf("Digite o nome do aluno: ");
-	fgets(studentName, sizeof(studentName), stdin);
-
-	scanf("%f%d%d", &score, &firstOp, &secondOP);
-	setbuf(stdin, NULL);
-	fflush(stdin);
-	
-	listOfCourses[firstOp]->listOfStudents = lst_insere_ordenado(listOfCourses[firstOp]->listOfStudents, studentName, score, firstOp, secondOP, 0);
-	listOfCourses[secondOP]->listOfStudents = lst_insere_ordenado(listOfCourses[secondOP]->listOfStudents, studentName, score, firstOp, secondOP, 0);
-
-	return listOfCourses;
-}
-
+// Function to find the name of an student that have passed on its first course option
 char *findStudentNameToRemove(List *listOfStudents, int positions, int index) {
 	int i;
 	for(i = 0 ;listOfStudents!=NULL;listOfStudents=listOfStudents->prox){
@@ -188,13 +166,13 @@ char *findStudentNameToRemove(List *listOfStudents, int positions, int index) {
 	return "NULL";
 }
 
+// Function to mark the student that have passed on its first course option
 List *markAsSecondOptionRemoved(List *listOfStudents, int positions, int index, char studentName[100]) {
 	int i;
 	List *aux = listOfStudents;
-	// copiar as informações dessa pessoa
-	// remover da lista
-	// inserir novamente com o secondOptionWasRemoved = 1 
-
+	// copy student informations
+	// romove from list
+	// insert again with secondOptionWasRemoved = 1 
 
 	for(i = 0 ;aux!=NULL;aux=aux->prox){
 		if (strcmp(aux->studentName , studentName) == 0) {
@@ -214,20 +192,13 @@ List *markAsSecondOptionRemoved(List *listOfStudents, int positions, int index, 
 	return listOfStudents;
 }
 
+// Function to remove the student's second option
 List *remove_second_options(List *listOfStudents, char studentToRemove[100]) {
-	printf("\n==== Recebi a listaa =====\n");
-	lst_imprime(listOfStudents);
-	printf("\n==== Fim da lista recebida =====\n");
-	
 	listOfStudents = lst_retira(listOfStudents, studentToRemove);
-
-	printf("\n==== Retirei da lista =====\n");
-	lst_imprime(listOfStudents);
-	printf("\n==== Fim da lista retirada =====\n");
-
 	return listOfStudents;
 }
 
+// Function to find the index of list array that contains the student's second course option
 int findStudentSecondOptionIndex(List *listOfStudents, char studentName[100]){
 	int i;
 	for(i = 0 ;listOfStudents!=NULL;listOfStudents=listOfStudents->prox){
@@ -239,6 +210,12 @@ int findStudentSecondOptionIndex(List *listOfStudents, char studentName[100]){
 	}
 	return -1;
 }
+
+// ------------------ List Functions End ------------------ //
+
+
+
+
 
 void initSisu() {
 	int i, courseQtd, studentsQtd, k;
@@ -273,35 +250,17 @@ void initSisu() {
 			if (strcmp(studentToRemove, "NULL") != 0) {
 				int index = findStudentSecondOptionIndex(listOfCourses[i]->listOfStudents, studentToRemove);
 				if (index != -1) {
-					printf("Remover a segunda opção do %s que está no index %d\n", studentToRemove, index);
-
 					listOfCourses[index]->listOfStudents = remove_second_options(listOfCourses[index]->listOfStudents, studentToRemove);
 					hasChanges = 1;
 					listOfCourses[i]->listOfStudents = markAsSecondOptionRemoved(listOfCourses[i]->listOfStudents, listOfCourses[i]->positions, i, studentToRemove);
-
-
-
-	printf("\n\n--------------------------------------------------------------------------------------------------------------\n\n");
-	printf("\n\n--------------------------------------------------------------------------------------------------------------\n\n");
-	// // Print all courses and lists
-	for (k = 0; k < courseQtd; k++) {
-		lst_print_course(listOfCourses[k]);
-	}
-	printf("\n\n--------------------------------------------------------------------------------------------------------------\n\n");
-	printf("\n\n--------------------------------------------------------------------------------------------------------------\n\n");
-
-
-
-
-
-
-
 				}
 			}
 		}
 	}
 
-	// // Print all courses and lists
+	// Check draws and define passing score
+
+	// Print all courses and lists
 	for (i = 0; i < courseQtd; i++) {
 		lst_print_course(listOfCourses[i]);
 	}
