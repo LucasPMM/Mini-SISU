@@ -6,12 +6,12 @@
 // ------------------ Course Functions Start ------------------ //
 
 // Function to initialize course structure
-Course* lst_create_course(){
+Course* course_create_course(){
 	return NULL;
 }
 
 // Function to create an structure of course 
-Course* lst_insert_course(Course *l, char courseName[100], int positions){
+Course* course_insert_course(Course *l, char courseName[100], int positions){
 	int i;
 	Course *novo = (Course *) malloc (sizeof(Course));
 	novo->positions = positions;
@@ -22,7 +22,7 @@ Course* lst_insert_course(Course *l, char courseName[100], int positions){
 }
 
 // Function to print one course and their properties
-void lst_print_course(Course *l){
+void course_print_course(Course *l){
 	printf("Nome do curso: %s\n", l->courseName);
 	printf("Número de vagas: %d\n\n", l->positions);
 	printf("Lista de alunos:\n");
@@ -31,7 +31,7 @@ void lst_print_course(Course *l){
 }
 
 // Function to free the occupied memory with the data of the structure course
-void lst_free_course(Course **c, int courseQtd){
+void course_free_course(Course **c, int courseQtd){
 	int i;
 	for (i = 0; i < courseQtd; i++) {
 		if (c[i]->listOfStudents) {
@@ -75,7 +75,22 @@ Course *read_informations(Course *l) {
 	scanf("%d", &positions);
 	setbuf(stdin, NULL);
 	fflush(stdin);
-	return lst_insert_course(l, courseName, positions);
+	return course_insert_course(l, courseName, positions);
+}
+
+void course_print_result(Course *l){
+	printf("%s %.2f\n", l->courseName, l->passingScore);
+	printf("Classificados\n");
+
+	List *p;
+	int i = 0;
+	for(p=l->listOfStudents; p!=NULL; p=p->prox){
+		printf("%s %.2f\n", p->studentName , p->score);
+		if (i == l->positions) {
+			printf("Lista de espera");
+		}
+		i++;
+	}
 }
 
 // ------------------ Course Functions End ------------------ //
@@ -183,7 +198,6 @@ List *markAsSecondOptionRemoved(List *listOfStudents, int positions, int index, 
 			for (i = 0; i < strlen(studentName); i++) {
 				studentNameCopy[i] = studentName[i];
 			}
-			printf("olha o nome que estou mandando para função: %s\n", studentNameCopy);
 			listOfStudents = lst_retira(listOfStudents, studentName);
 		    listOfStudents = lst_insere_ordenado(listOfStudents, studentNameCopy, score, firstOp, secondOp, 1);
 		}		
@@ -238,7 +252,7 @@ void initSisu() {
 
 	// Print all courses and lists
 	for (i = 0; i < courseQtd; i++) {
-		lst_print_course(listOfCourses[i]);
+		course_print_course(listOfCourses[i]);
 	}
 	
 	// Remove second course option from students that have already passed on first option
@@ -259,12 +273,24 @@ void initSisu() {
 	}
 
 	// Check draws and define passing score
+	// for (i = 0; i < courseQtd; i++) {
+	// 	course_print_result(listOfCourses[i]);
+	// }
+
+
+
+	// FOR TESTS;
+	for (i = 0; i < courseQtd; i++) {
+		course_print_course(listOfCourses[i]);
+	}
+	// FOR TESTS;
+
 
 	// Print all courses and lists
-	for (i = 0; i < courseQtd; i++) {
-		lst_print_course(listOfCourses[i]);
-	}
+	// for (i = 0; i < courseQtd; i++) {
+	// 	course_print_result(listOfCourses[i]);
+	// }
 
 	// Remove list from memory
-	lst_free_course(listOfCourses, courseQtd);
+	course_free_course(listOfCourses, courseQtd);
 }

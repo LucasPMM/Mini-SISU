@@ -19,12 +19,13 @@ struct course{
 typedef struct course Course;
 
 // Course Functions:
-Course* lst_create_course();
-Course* lst_insert_course(Course *l, char courseName[100], int positions);
-void lst_print_course(Course *l);
-void lst_free_course(Course **c, int courseQtd);
+Course* course_create_course();
+Course* course_insert_course(Course *l, char courseName[100], int positions);
+void course_print_course(Course *l);
+void course_free_course(Course **c, int courseQtd);
 Course **read_students(Course **listOfCourses);
 Course *read_informations(Course *l);
+void course_print_result(Course *l);
 
 // List Functions:
 List* lst_cria();
