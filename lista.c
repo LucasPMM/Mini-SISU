@@ -93,6 +93,60 @@ void course_print_result(Course *l){
 	}
 }
 
+Course **check_courses_lists(int courseQtd, Course **listOfCourses) {
+	int hasChanges = 1, i;
+	while (hasChanges) {
+		hasChanges = 0;
+		for (i = 0; i < courseQtd; i++) {
+			char *studentToRemove = findStudentNameToRemove(listOfCourses[i]->listOfStudents, listOfCourses[i]->positions, i);
+			if (strcmp(studentToRemove, "NULL") != 0) {
+				int index = findStudentSecondOptionIndex(listOfCourses[i]->listOfStudents, studentToRemove);
+				if (index != -1) {
+					listOfCourses[index]->listOfStudents = remove_second_options(listOfCourses[index]->listOfStudents, studentToRemove);
+					hasChanges = 1;
+					listOfCourses[i]->listOfStudents = markAsSecondOptionRemoved(listOfCourses[i]->listOfStudents, studentToRemove);
+				}
+			}
+		}
+	}
+	return listOfCourses;
+}
+
+Course *course_passing_score(Course *c, int index) {
+	List *l = c->listOfStudents;
+	int positions = c->positions, i, isFirstOption = 0;
+	char passingScoreStudentName[100];
+	
+	c->passingScore = 0.0;
+
+	for(i = 0; l != NULL; l = l->prox, i++) {
+		if (i == positions) {
+			c->passingScore = l->score;
+			strcpy(passingScoreStudentName, l->studentName);
+			if (index == l->firstOp) {
+				isFirstOption = 1;
+			}
+		}
+
+		// If the course in question is the second option of the last placed of the regular list 
+		if (!isFirstOption && l->prox) {
+			// If the last list score of the first list is equal to the first list score of the waiting list
+			if (c->passingScore == l->prox->score) {
+				// If this course is the first option of the first placed of the waiting list
+				if (l->prox->firstOp == index) {
+					// TODO:
+					// Switch students positions
+					// student1: passingScoreStudentName
+					// student2: l->prox->studentName
+					isFirstOption = 1;
+				}
+			}
+		}
+
+	}
+	return c;
+}
+
 // ------------------ Course Functions End ------------------ //
 
 
@@ -181,27 +235,44 @@ char *findStudentNameToRemove(List *listOfStudents, int positions, int index) {
 	return "NULL";
 }
 
-// Function to mark the student that have passed on its first course option
-List *markAsSecondOptionRemoved(List *listOfStudents, int positions, int index, char studentName[100]) {
-	int i;
-	List *aux = listOfStudents;
-	// copy student informations
-	// romove from list
-	// insert again with secondOptionWasRemoved = 1 
+// List *markAsSecondOptionRemoved(List *listOfStudents, int positions, int index, char studentName[100]) {
 
-	for(i = 0 ;aux!=NULL;aux=aux->prox){
-		if (strcmp(aux->studentName , studentName) == 0) {
-			int firstOp = aux->firstOp;
-			int secondOp = aux->secondOp;
-			float score = aux->score;
-			char studentNameCopy[100];
-			for (i = 0; i < strlen(studentName); i++) {
-				studentNameCopy[i] = studentName[i];
-			}
-			listOfStudents = lst_retira(listOfStudents, studentName);
-		    listOfStudents = lst_insere_ordenado(listOfStudents, studentNameCopy, score, firstOp, secondOp, 1);
-		}		
-		i++;
+// 	// TODO:
+// 	// Essa função vai dar problema pois quando dois alunos tiverem a mesma nota, o que conta é a ordem de chegada,
+// 	// a qual pode ser prejudicada ao retirar e colocar novamente um aluno da lista
+// 	// Recursão!?
+
+// 	int i;
+// 	List *aux = listOfStudents;
+// 	// copy student informations
+// 	// romove from list
+// 	// insert again with secondOptionWasRemoved = 1 
+
+// 	for(i = 0; aux!=NULL;aux=aux->prox){
+// 		if (strcmp(aux->studentName , studentName) == 0) {
+// 			int firstOp = aux->firstOp;
+// 			int secondOp = aux->secondOp;
+// 			float score = aux->score;
+// 			char studentNameCopy[100];
+// 			for (i = 0; i < strlen(studentName); i++) {
+// 				studentNameCopy[i] = studentName[i];
+// 			}
+// 			listOfStudents = lst_retira(listOfStudents, studentName);
+// 		    listOfStudents = lst_insere_ordenado(listOfStudents, studentNameCopy, score, firstOp, secondOp, 1);
+// 		}		
+// 		i++;
+// 	}
+// 	return listOfStudents;
+// }
+
+// Function to mark the student that have passed on its first course option
+List *markAsSecondOptionRemoved(List *listOfStudents, char studentName[100]) {
+	int i;
+
+	if (strcmp(listOfStudents->studentName , studentName) == 0) {
+		listOfStudents->secondOptionWasRemoved = 1;
+	} else {
+		listOfStudents = markAsSecondOptionRemoved(listOfStudents->prox, studentName);
 	}
 	return listOfStudents;
 }
@@ -256,26 +327,12 @@ void initSisu() {
 	}
 	
 	// Remove second course option from students that have already passed on first option
-	int hasChanges = 1;
-	while (hasChanges) {
-		hasChanges = 0;
-		for (i = 0; i < courseQtd; i++) {
-			char *studentToRemove = findStudentNameToRemove(listOfCourses[i]->listOfStudents, listOfCourses[i]->positions, i);
-			if (strcmp(studentToRemove, "NULL") != 0) {
-				int index = findStudentSecondOptionIndex(listOfCourses[i]->listOfStudents, studentToRemove);
-				if (index != -1) {
-					listOfCourses[index]->listOfStudents = remove_second_options(listOfCourses[index]->listOfStudents, studentToRemove);
-					hasChanges = 1;
-					listOfCourses[i]->listOfStudents = markAsSecondOptionRemoved(listOfCourses[i]->listOfStudents, listOfCourses[i]->positions, i, studentToRemove);
-				}
-			}
-		}
-	}
+	listOfCourses = check_courses_lists(courseQtd, listOfCourses);
 
 	// Check draws and define passing score
-	// for (i = 0; i < courseQtd; i++) {
-	// 	course_print_result(listOfCourses[i]);
-	// }
+	for (i = 0; i < courseQtd; i++) {
+		// course_passing_score(listOfCourses[i], i);
+	}
 
 
 

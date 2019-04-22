@@ -26,6 +26,8 @@ void course_free_course(Course **c, int courseQtd);
 Course **read_students(Course **listOfCourses);
 Course *read_informations(Course *l);
 void course_print_result(Course *l);
+Course **check_courses_lists(int courseQtd, Course **listOfCourses);
+Course *course_passing_score(Course *c, int index);
 
 // List Functions:
 List* lst_cria();
@@ -33,7 +35,7 @@ void lst_imprime(List *l);
 List *lst_retira(List *l, char studentName[100]);
 List *lst_insere_ordenado(List *l, char studentName[100], float score, int firstOp, int secondOP, int secondOptionWasRemoved);
 char *findStudentNameToRemove(List *listOfStudents, int positions, int index);
-List *markAsSecondOptionRemoved(List *listOfStudents, int positions, int index, char studentName[100]);
+List *markAsSecondOptionRemoved(List *listOfStudents, char studentName[100]);
 List *remove_second_options(List *listOfStudents, char studentToRemove[100]);
 int findStudentSecondOptionIndex(List *listOfStudents, char studentName[100]);
 
