@@ -35,9 +35,9 @@ void lst_imprime(List *l);
 List *lst_retira(List *l, char studentName[100]);
 List *lst_insere_ordenado(List *l, char studentName[100], float score, int firstOp, int secondOP, int secondOptionWasRemoved);
 char *findStudentNameToRemove(List *listOfStudents, int positions, int index);
-List *markAsSecondOptionRemoved(List *listOfStudents, char studentName[100]);
+List *mark_as_second_option_removed(List *listOfStudents, char studentName[100]);
 List *update_user_informations(List *listOfStudents, char oldStudentName[100], char newStudentName[100], int firstOp, int secondOp, int secondOptionWasRemoved, float score);
 List *remove_second_options(List *listOfStudents, char studentToRemove[100]);
-int findStudentSecondOptionIndex(List *listOfStudents, char studentName[100]);
+int find_student_second_option_index(List *listOfStudents, char studentName[100]);
 
-void initSisu(); // start program
+void init_sisu(); // start program

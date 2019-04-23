@@ -102,11 +102,11 @@ Course **check_courses_lists(int courseQtd, Course **listOfCourses) {
 		for (i = 0; i < courseQtd; i++) {
 			char *studentToRemove = findStudentNameToRemove(listOfCourses[i]->listOfStudents, listOfCourses[i]->positions, i);
 			if (strcmp(studentToRemove, "NULL") != 0) {
-				int index = findStudentSecondOptionIndex(listOfCourses[i]->listOfStudents, studentToRemove);
+				int index = find_student_second_option_index(listOfCourses[i]->listOfStudents, studentToRemove);
 				if (index != -1) {
 					listOfCourses[index]->listOfStudents = remove_second_options(listOfCourses[index]->listOfStudents, studentToRemove);
 					hasChanges = 1;
-					listOfCourses[i]->listOfStudents = markAsSecondOptionRemoved(listOfCourses[i]->listOfStudents, studentToRemove);
+					listOfCourses[i]->listOfStudents = mark_as_second_option_removed(listOfCourses[i]->listOfStudents, studentToRemove);
 				}
 			}
 		}
@@ -271,13 +271,13 @@ char *findStudentNameToRemove(List *listOfStudents, int positions, int index) {
 }
 
 // Function to mark the student that have passed on its first course option
-List *markAsSecondOptionRemoved(List *listOfStudents, char studentName[100]) {
+List *mark_as_second_option_removed(List *listOfStudents, char studentName[100]) {
 	int i;
 
 	if (strcmp(listOfStudents->studentName , studentName) == 0) {
 		listOfStudents->secondOptionWasRemoved = 1;
 	} else {
-		listOfStudents = markAsSecondOptionRemoved(listOfStudents->prox, studentName);
+		listOfStudents = mark_as_second_option_removed(listOfStudents->prox, studentName);
 	}
 	return listOfStudents;
 }
@@ -305,7 +305,7 @@ List *remove_second_options(List *listOfStudents, char studentToRemove[100]) {
 }
 
 // Function to find the index of list array that contains the student's second course option
-int findStudentSecondOptionIndex(List *listOfStudents, char studentName[100]){
+int find_student_second_option_index(List *listOfStudents, char studentName[100]){
 	int i;
 	for(i = 0 ;listOfStudents!=NULL;listOfStudents=listOfStudents->prox){
 		if (strcmp(listOfStudents->studentName, studentName) == 0) {
@@ -320,10 +320,7 @@ int findStudentSecondOptionIndex(List *listOfStudents, char studentName[100]){
 // ------------------ List Functions End ------------------ //
 
 
-
-
-
-void initSisu() {
+void init_sisu() {
 	int i, courseQtd, studentsQtd, k;
 
 	// Read the quantity of courses and students

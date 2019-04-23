@@ -3,6 +3,6 @@
 #include "lista.h"
 
 int main(){
-	initSisu();
+	init_sisu();
 	return 0;
 }
