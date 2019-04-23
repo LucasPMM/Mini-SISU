@@ -5,6 +5,8 @@
 
 // ------------------ Course Functions Start ------------------ //
 
+int ListChangedWatcher = 1;
+
 // Function to initialize course structure
 Course* course_create_course(){
 	return NULL;
@@ -50,7 +52,6 @@ Course **read_students(Course **listOfCourses) {
 	int firstOp, secondOP;
 	float score;
 
-	printf("Digite o nome do aluno: ");
 	fgets(studentName, sizeof(studentName), stdin);
 
 	scanf("%f%d%d", &score, &firstOp, &secondOP);
@@ -68,10 +69,8 @@ Course *read_informations(Course *l) {
 	char courseName[100];
 	int positions;
 
-	printf("Digite o nome do curso: ");
 	fgets(courseName, sizeof(courseName), stdin);
 
-	printf("Digite a quantidade de vagas: ");
 	scanf("%d", &positions);
 	setbuf(stdin, NULL);
 	fflush(stdin);
@@ -80,16 +79,19 @@ Course *read_informations(Course *l) {
 
 void course_print_result(Course *l){
 	printf("%s %.2f\n", l->courseName, l->passingScore);
-	printf("Classificados\n");
+	if (l->positions && (l->listOfStudents->firstOp || l->listOfStudents->secondOp)) {
+		printf("Classificados\n");
 
-	List *p;
-	int i = 0;
-	for(p=l->listOfStudents; p!=NULL; p=p->prox){
-		printf("%s %.2f\n", p->studentName , p->score);
-		if (i == l->positions) {
-			printf("Lista de espera");
+		List *p;
+		int i = 0;
+		for(p=l->listOfStudents; p!=NULL; p=p->prox){
+			printf("%s %.2f\n", p->studentName , p->score);
+			if (i == l->positions && p->prox != NULL) {
+				printf("Lista de espera");
+			}
+			i++;
 		}
-		i++;
+		printf("\n");
 	}
 }
 
@@ -115,14 +117,31 @@ Course **check_courses_lists(int courseQtd, Course **listOfCourses) {
 Course *course_passing_score(Course *c, int index) {
 	List *l = c->listOfStudents;
 	int positions = c->positions, i, isFirstOption = 0;
-	char passingScoreStudentName[100];
 	
+	// Student at last position on regular list informations
+	char passingScoreStudentName[100];
+	int approvedFirstOp;
+	int approvedSecondOp;
+	int approvedSecondOptionWasRemoved;
+	float approvedScore;
+
+	// Student on waiting list informations
+	char waitingStudentName[100];
+	int waitingFirstOp;
+	int waitingSecondOp;
+	int waitingSecondOptionWasRemoved;
+	float waitingScore;
+
 	c->passingScore = 0.0;
 
 	for(i = 0; l != NULL; l = l->prox, i++) {
-		if (i == positions) {
+		if (i + 1 == positions) {
 			c->passingScore = l->score;
 			strcpy(passingScoreStudentName, l->studentName);
+			approvedFirstOp = l->firstOp;
+			approvedSecondOp = l->secondOp;
+			approvedSecondOptionWasRemoved = l->secondOptionWasRemoved;
+			approvedScore = l->score;
 			if (index == l->firstOp) {
 				isFirstOption = 1;
 			}
@@ -134,11 +153,27 @@ Course *course_passing_score(Course *c, int index) {
 			if (c->passingScore == l->prox->score) {
 				// If this course is the first option of the first placed of the waiting list
 				if (l->prox->firstOp == index) {
-					// TODO:
-					// Switch students positions
-					// student1: passingScoreStudentName
-					// student2: l->prox->studentName
+
+					strcpy(waitingStudentName, l->prox->studentName);
+					waitingFirstOp = l->prox->firstOp;
+					waitingSecondOp = l->prox->secondOp;
+					waitingSecondOptionWasRemoved = l->prox->secondOptionWasRemoved;
+					waitingScore = l->prox->score;
+
+					// funçaõ para trocar
+					update_user_informations(c->listOfStudents, waitingStudentName, passingScoreStudentName, approvedFirstOp, approvedSecondOp, approvedSecondOptionWasRemoved, approvedScore);
+					update_user_informations(c->listOfStudents, passingScoreStudentName, waitingStudentName, waitingFirstOp, waitingSecondOp, waitingSecondOptionWasRemoved, waitingScore);
+
+					// Update informations of the new approved student
+					// strcpy(passingScoreStudentName, waitingStudentName);
+					// approvedFirstOp = waitingFirstOp;
+					// approvedSecondOp = waitingSecondOp;
+					// approvedSecondOptionWasRemoved = waitingSecondOptionWasRemoved;
+					// approvedScore = waitingScore;
+
 					isFirstOption = 1;
+					ListChangedWatcher = 1;
+					break;
 				}
 			}
 		}
@@ -235,36 +270,6 @@ char *findStudentNameToRemove(List *listOfStudents, int positions, int index) {
 	return "NULL";
 }
 
-// List *markAsSecondOptionRemoved(List *listOfStudents, int positions, int index, char studentName[100]) {
-
-// 	// TODO:
-// 	// Essa função vai dar problema pois quando dois alunos tiverem a mesma nota, o que conta é a ordem de chegada,
-// 	// a qual pode ser prejudicada ao retirar e colocar novamente um aluno da lista
-// 	// Recursão!?
-
-// 	int i;
-// 	List *aux = listOfStudents;
-// 	// copy student informations
-// 	// romove from list
-// 	// insert again with secondOptionWasRemoved = 1 
-
-// 	for(i = 0; aux!=NULL;aux=aux->prox){
-// 		if (strcmp(aux->studentName , studentName) == 0) {
-// 			int firstOp = aux->firstOp;
-// 			int secondOp = aux->secondOp;
-// 			float score = aux->score;
-// 			char studentNameCopy[100];
-// 			for (i = 0; i < strlen(studentName); i++) {
-// 				studentNameCopy[i] = studentName[i];
-// 			}
-// 			listOfStudents = lst_retira(listOfStudents, studentName);
-// 		    listOfStudents = lst_insere_ordenado(listOfStudents, studentNameCopy, score, firstOp, secondOp, 1);
-// 		}		
-// 		i++;
-// 	}
-// 	return listOfStudents;
-// }
-
 // Function to mark the student that have passed on its first course option
 List *markAsSecondOptionRemoved(List *listOfStudents, char studentName[100]) {
 	int i;
@@ -273,6 +278,22 @@ List *markAsSecondOptionRemoved(List *listOfStudents, char studentName[100]) {
 		listOfStudents->secondOptionWasRemoved = 1;
 	} else {
 		listOfStudents = markAsSecondOptionRemoved(listOfStudents->prox, studentName);
+	}
+	return listOfStudents;
+}
+
+// Function to update user informations
+List *update_user_informations(List *listOfStudents, char oldStudentName[100], char newStudentName[100], int firstOp, int secondOp, int secondOptionWasRemoved, float score) {
+	int i;
+
+	if (strcmp(listOfStudents->studentName , oldStudentName) == 0) {
+		strcpy(listOfStudents->studentName, newStudentName);
+		listOfStudents->firstOp = firstOp;
+		listOfStudents->secondOp = secondOp;
+		listOfStudents->secondOptionWasRemoved = secondOptionWasRemoved;
+		listOfStudents->score = score;		
+	} else {
+		listOfStudents = update_user_informations(listOfStudents->prox, oldStudentName, newStudentName, firstOp, secondOp, secondOptionWasRemoved, score);
 	}
 	return listOfStudents;
 }
@@ -316,37 +337,39 @@ void initSisu() {
 		listOfCourses[i] = read_informations(listOfCourses[i]);
 	}
 
-	// Inset all students on right course Lista
+	// Inset all students on right course list
 	for (i = 0; i < studentsQtd; i++) {
 		listOfCourses = read_students(listOfCourses);	
 	}
 
-	// Print all courses and lists
-	for (i = 0; i < courseQtd; i++) {
-		course_print_course(listOfCourses[i]);
-	}
-	
-	// Remove second course option from students that have already passed on first option
-	listOfCourses = check_courses_lists(courseQtd, listOfCourses);
-
-	// Check draws and define passing score
-	for (i = 0; i < courseQtd; i++) {
-		// course_passing_score(listOfCourses[i], i);
-	}
-
-
-
-	// FOR TESTS;
-	for (i = 0; i < courseQtd; i++) {
-		course_print_course(listOfCourses[i]);
-	}
-	// FOR TESTS;
-
-
-	// Print all courses and lists
+	// // Print all courses and lists
 	// for (i = 0; i < courseQtd; i++) {
-	// 	course_print_result(listOfCourses[i]);
+	// 	course_print_course(listOfCourses[i]);
 	// }
+
+	while (ListChangedWatcher) {
+		ListChangedWatcher = 0;
+		// Remove second course option from students that have already passed on first option
+		listOfCourses = check_courses_lists(courseQtd, listOfCourses);
+
+		// Check draws and define passing score
+		for (i = 0; i < courseQtd; i++) {
+			listOfCourses[i] = course_passing_score(listOfCourses[i], i);
+		}
+	}
+
+	// // FOR TESTS;
+	// for (i = 0; i < courseQtd; i++) {
+	// 	course_print_course(listOfCourses[i]);
+	// }
+	// // FOR TESTS;
+
+
+	// Print all courses and lists
+	printf("\n");
+	for (i = 0; i < courseQtd; i++) {
+		course_print_result(listOfCourses[i]);
+	}
 
 	// Remove list from memory
 	course_free_course(listOfCourses, courseQtd);
