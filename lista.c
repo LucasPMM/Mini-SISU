@@ -21,15 +21,6 @@ Course* course_insert_course(Course *l, char courseName[100], int positions){
 	return novo;
 }
 
-// Function to print one course and their properties
-void course_print_course(Course *l){
-	printf("Nome do curso: %s\n", l->courseName);
-	printf("Número de vagas: %d\n\n", l->positions);
-	printf("Lista de alunos:\n");
-
-	lst_imprime(l->listOfStudents);
-}
-
 // Function to free the occupied memory with the data of the structure course
 void course_free_course(Course **c, int courseQtd){
 	int i;
@@ -76,20 +67,25 @@ Course *read_informations(Course *l) {
 }
 
 void course_print_result(Course *l){
+	int waitingListPrinted = 0;
+
 	printf("%s %.2f\n", l->courseName, l->passingScore);
-	if (l->positions && (l->listOfStudents->firstOp || l->listOfStudents->secondOp)) {
-		printf("Classificados\n");
+	printf("Classificados\n");
+	if (l && l->listOfStudents && l->positions && (l->listOfStudents->firstOp || l->listOfStudents->secondOp)) {
 
 		List *p;
 		int i = 0;
 		for(p=l->listOfStudents; p!=NULL; p=p->prox){
 			printf("%s %.2f\n", p->studentName , p->score);
-			if (i + 1 == l->positions && p->prox != NULL) {
-				printf("Lista de espera\n");
+			if (i + 1 == l->positions || (p->prox == NULL && !waitingListPrinted)) {
+				waitingListPrinted = 1;
+				printf("Lista de Espera\n");
 			}
 			i++;
 		}
 		printf("\n");
+	} else {
+		printf("Lista de Espera\n");
 	}
 }
 
@@ -102,29 +98,9 @@ Course **check_courses_lists(int courseQtd, Course **listOfCourses) {
 			if (strcmp(studentToRemove, "NULL") != 0) {
 				int index = find_student_second_option_index(listOfCourses[i]->listOfStudents, studentToRemove);
 				if (index != -1) {
-					// printf("Removendo a segunda opção do %s no indexx %d\n", studentToRemove, index);
-	// printf("======================ANTES DA REMOÇAO=======================\n");
-	// for (j = 0; j < courseQtd; j++) {
-	// 	course_print_course(listOfCourses[j]);
-	// }
-	// printf("=============================================\n");
-
 					listOfCourses[index]->listOfStudents = lst_retira(listOfCourses[index]->listOfStudents, studentToRemove);
-					// listOfCourses[index]->listOfStudents = remove_second_options(listOfCourses[index]->listOfStudents, studentToRemove);
 					hasChanges = 1;
-	// 	printf("======================DEPOIS DA REMOÇAO=======================\n");
-	// for (j = 0; j < courseQtd; j++) {
-	// 	course_print_course(listOfCourses[j]);
-	// }
-	// 	printf("=============================================\n");
 					listOfCourses[i]->listOfStudents = mark_as_second_option_removed(listOfCourses[i]->listOfStudents, studentToRemove);
-	// 	printf("======================DEPOIS DA FUNÇÃO RECURSIVA=======================\n");
-	// for (j = 0; j < courseQtd; j++) {
-	// 	course_print_course(listOfCourses[j]);
-	// }
-	// 	printf("=============================================\n");
-
-
 				}
 			}
 		}
@@ -178,16 +154,9 @@ Course *course_passing_score(Course *c, int index, int *ListChangedWatcher) {
 					waitingSecondOptionWasRemoved = l->prox->secondOptionWasRemoved;
 					waitingScore = l->prox->score;
 
-					// funçaõ para trocar
+					// Switch users
 					update_user_informations(c->listOfStudents, waitingStudentName, passingScoreStudentName, approvedFirstOp, approvedSecondOp, approvedSecondOptionWasRemoved, approvedScore);
 					update_user_informations(c->listOfStudents, passingScoreStudentName, waitingStudentName, waitingFirstOp, waitingSecondOp, waitingSecondOptionWasRemoved, waitingScore);
-
-					// Update informations of the new approved student
-					// strcpy(passingScoreStudentName, waitingStudentName);
-					// approvedFirstOp = waitingFirstOp;
-					// approvedSecondOp = waitingSecondOp;
-					// approvedSecondOptionWasRemoved = waitingSecondOptionWasRemoved;
-					// approvedScore = waitingScore;
 
 					isFirstOption = 1;
 					*ListChangedWatcher = 1;
@@ -201,7 +170,6 @@ Course *course_passing_score(Course *c, int index, int *ListChangedWatcher) {
 }
 
 // ------------------ Course Functions End ------------------ //
-
 
 
 // ------------------ List Functions Start ------------------ //
@@ -228,7 +196,6 @@ List *lst_retira(List *l, char studentName[100]){
 		ant=p;
 		p=p->prox;
 	}
-	// printf("VOU REMOVER: %s\n", p->studentName);
 
 	if (p==NULL){
 		return l;
@@ -250,7 +217,7 @@ List *lst_insere_ordenado(List *l, char studentName[100], float score, int first
 	List *p = l;
 	int i;
 
-	while(p!=NULL && p->score > score){
+	while(p!=NULL && p->score >= score){
 		ant = p;
 		p = p->prox;
 	}
@@ -279,7 +246,7 @@ List *lst_insere_ordenado(List *l, char studentName[100], float score, int first
 		novo->prox = ant->prox;
 		ant->prox = novo;
 	}
-	return l;course_print_course
+	return l;
 }
 
 // Function to find the name of an student that have passed on its first course option
@@ -325,12 +292,6 @@ List *update_user_informations(List *listOfStudents, char oldStudentName[100], c
 	return listOfStudents;
 }
 
-// Function to remove the student's second option
-List *remove_second_options(List *listOfStudents, char studentToRemove[100]) {
-	listOfStudents = lst_retira(listOfStudents, studentToRemove);
-	return listOfStudents;
-}
-
 // Function to find the index of list array that contains the student's second course option
 int find_student_second_option_index(List *listOfStudents, char studentName[100]){
 	int i;
@@ -367,28 +328,16 @@ void init_sisu() {
 		listOfCourses = read_students(listOfCourses);	
 	}
 
-	// // Print all courses and lists
-	// for (i = 0; i < courseQtd; i++) {
-	// 	course_print_course(listOfCourses[i]);
-	// }
-
 	while (ListChangedWatcher) {
 		ListChangedWatcher = 0;
 		// Remove second course option from students that have already passed on first option
 		listOfCourses = check_courses_lists(courseQtd, listOfCourses);
-
+		
 		// Check draws and define passing score
 		for (i = 0; i < courseQtd; i++) {
 			listOfCourses[i] = course_passing_score(listOfCourses[i], i, &ListChangedWatcher);
 		}
 	}
-
-	// // FOR TESTS;
-	// for (i = 0; i < courseQtd; i++) {
-		// course_print_course(listOfCourses[i]);
-	// }
-	// // FOR TESTS;
-
 
 	// Print all courses and lists
 	printf("\n");

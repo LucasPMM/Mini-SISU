@@ -21,7 +21,6 @@ typedef struct course Course;
 // Course Functions:
 Course* course_create_course();
 Course* course_insert_course(Course *l, char courseName[100], int positions);
-void course_print_course(Course *l);
 void course_free_course(Course **c, int courseQtd);
 Course **read_students(Course **listOfCourses);
 Course *read_informations(Course *l);
@@ -37,7 +36,6 @@ List *lst_insere_ordenado(List *l, char studentName[100], float score, int first
 char *findStudentNameToRemove(List *listOfStudents, int positions, int index);
 List *mark_as_second_option_removed(List *listOfStudents, char studentName[100]);
 List *update_user_informations(List *listOfStudents, char oldStudentName[100], char newStudentName[100], int firstOp, int secondOp, int secondOptionWasRemoved, float score);
-List *remove_second_options(List *listOfStudents, char studentToRemove[100]);
 int find_student_second_option_index(List *listOfStudents, char studentName[100]);
 
 void init_sisu(); // start program
