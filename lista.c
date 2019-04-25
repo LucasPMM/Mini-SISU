@@ -340,7 +340,7 @@ void init_sisu() {
 	}
 
 	// Print all courses and lists
-	printf("\n");
+	// printf("\n");
 	for (i = 0; i < courseQtd; i++) {
 		course_print_result(listOfCourses[i]);
 	}
