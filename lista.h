@@ -29,11 +29,10 @@ Course **check_courses_lists(int courseQtd, Course **listOfCourses);
 Course *course_passing_score(Course *c, int index, int *ListChangedWatcher);
 
 // List Functions:
-List* lst_cria();
-void lst_imprime(List *l);
+void lst_free(List *l);
 List *lst_retira(List *l, char studentName[100]);
-List *lst_insere_ordenado(List *l, char studentName[100], float score, int firstOp, int secondOP, int secondOptionWasRemoved);
-char *findStudentNameToRemove(List *listOfStudents, int positions, int index);
+List *lst_insert(List *l, char studentName[100], float score, int firstOp, int secondOP, int secondOptionWasRemoved);
+char *find_student_name_to_remove(List *listOfStudents, int positions, int index);
 List *mark_as_second_option_removed(List *listOfStudents, char studentName[100]);
 List *update_user_informations(List *listOfStudents, char oldStudentName[100], char newStudentName[100], int firstOp, int secondOp, int secondOptionWasRemoved, float score);
 int find_student_second_option_index(List *listOfStudents, char studentName[100]);

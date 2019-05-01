@@ -47,8 +47,8 @@ Course **read_students(Course **listOfCourses) {
 	setbuf(stdin, NULL);
 	fflush(stdin);
 	
-	listOfCourses[firstOp]->listOfStudents = lst_insere_ordenado(listOfCourses[firstOp]->listOfStudents, studentName, score, firstOp, secondOP, 0);
-	listOfCourses[secondOP]->listOfStudents = lst_insere_ordenado(listOfCourses[secondOP]->listOfStudents, studentName, score, firstOp, secondOP, 0);
+	listOfCourses[firstOp]->listOfStudents = lst_insert(listOfCourses[firstOp]->listOfStudents, studentName, score, firstOp, secondOP, 0);
+	listOfCourses[secondOP]->listOfStudents = lst_insert(listOfCourses[secondOP]->listOfStudents, studentName, score, firstOp, secondOP, 0);
 
 	return listOfCourses;
 }
@@ -79,13 +79,13 @@ void course_print_result(Course *l){
 			printf("%s %.2f\n", p->studentName , p->score);
 			if (i + 1 == l->positions || (p->prox == NULL && !waitingListPrinted)) {
 				waitingListPrinted = 1;
-				printf("Lista de Espera\n");
+				printf("Lista de espera\n");
 			}
 			i++;
 		}
 		printf("\n");
 	} else {
-		printf("Lista de Espera\n");
+		printf("Lista de espera\n");
 	}
 }
 
@@ -94,7 +94,7 @@ Course **check_courses_lists(int courseQtd, Course **listOfCourses) {
 	while (hasChanges) {
 		hasChanges = 0;
 		for (i = 0; i < courseQtd; i++) {
-			char *studentToRemove = findStudentNameToRemove(listOfCourses[i]->listOfStudents, listOfCourses[i]->positions, i);
+			char *studentToRemove = find_student_name_to_remove(listOfCourses[i]->listOfStudents, listOfCourses[i]->positions, i);
 			if (strcmp(studentToRemove, "NULL") != 0) {
 				int index = find_student_second_option_index(listOfCourses[i]->listOfStudents, studentToRemove);
 				if (index != -1) {
@@ -174,18 +174,13 @@ Course *course_passing_score(Course *c, int index, int *ListChangedWatcher) {
 
 // ------------------ List Functions Start ------------------ //
 
-// Function to initialize list structure
-List* lst_cria(){
-	return NULL;
-}
-
-// Function to print list informations
-void lst_imprime(List *l){
-	List *p;
-	for(p=l;p!=NULL;p=p->prox){
-		printf("%s\t%.2f\t%d\t%d\t wasRemoved: %d\n", p->studentName , p->score, p->firstOp, p->secondOp, p->secondOptionWasRemoved);
+void lst_free(List *l){
+	List *p = l;
+	while(p!=NULL){
+		List *t = p->prox;
+		free(p);
+		p=t;
 	}
-	printf("\n");
 }
 
 // Function to remove an element from list
@@ -211,7 +206,7 @@ List *lst_retira(List *l, char studentName[100]){
 }
 
 // Function to insert elements on list
-List *lst_insere_ordenado(List *l, char studentName[100], float score, int firstOp, int secondOP, int secondOptionWasRemoved){
+List *lst_insert(List *l, char studentName[100], float score, int firstOp, int secondOP, int secondOptionWasRemoved){
 	List *novo;
 	List *ant = NULL;
 	List *p = l;
@@ -246,11 +241,12 @@ List *lst_insere_ordenado(List *l, char studentName[100], float score, int first
 		novo->prox = ant->prox;
 		ant->prox = novo;
 	}
+	// lst_free(novo);
 	return l;
 }
 
 // Function to find the name of an student that have passed on its first course option
-char *findStudentNameToRemove(List *listOfStudents, int positions, int index) {
+char *find_student_name_to_remove(List *listOfStudents, int positions, int index) {
 	int i;
 	List *s = listOfStudents;
 	for(i = 0; s!=NULL; s=s->prox){
