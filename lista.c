@@ -13,11 +13,10 @@ Course* course_create_course(){
 // Function to create an structure of course 
 Course* course_insert_course(Course *l, char courseName[100], int positions){
 	int i;
-	Course *novo = (Course *) malloc (sizeof(Course));
+	Course *novo = (Course *) calloc (1,sizeof(Course));
 	novo->positions = positions;
-	for (i = 0; i < strlen(courseName) - 1; i++) {
-		novo->courseName[i] = courseName[i];
-	}
+	strcpy(novo->courseName, courseName);
+	novo->courseName[strlen(courseName) - 1] = '\0';
 	return novo;
 }
 
@@ -26,13 +25,10 @@ void course_free_course(Course **c, int courseQtd){
 	int i;
 	for (i = 0; i < courseQtd; i++) {
 		if (c[i]->listOfStudents) {
-			List *p = c[i]->listOfStudents;
-			List *t = p->prox;
-			free(p);
-			p=t;
+			lst_free(c[i]->listOfStudents);
 		}
+		free(c[i]);
 	}
-	free(c);
 }
 
 // Function to read student informations
@@ -219,7 +215,7 @@ List *lst_insert(List *l, char studentName[100], float score, int firstOp, int s
 		p = p->prox;
 	}
 
-	novo = (List *) malloc (sizeof(List));
+	novo = (List *) calloc (1,sizeof(List));
 	novo->score = score;
 	novo->firstOp = firstOp;
 	novo->secondOp = secondOP;
@@ -243,7 +239,6 @@ List *lst_insert(List *l, char studentName[100], float score, int firstOp, int s
 		novo->prox = ant->prox;
 		ant->prox = novo;
 	}
-	// lst_free(novo);
 	return l;
 }
 
@@ -314,7 +309,7 @@ void init_sisu() {
 	scanf("%d%d", &courseQtd, &studentsQtd);
 
 	// Read all courses and number of positions
-	Course **listOfCourses = (Course **) malloc (courseQtd*sizeof(Course *));
+	Course **listOfCourses = (Course **) calloc (courseQtd,sizeof(Course *));
 	for (i = 0; i < courseQtd; i++) {
 		listOfCourses[i] = read_informations(listOfCourses[i]);
 	}
@@ -347,4 +342,5 @@ void init_sisu() {
 
 	// Remove list from memory
 	course_free_course(listOfCourses, courseQtd);
+	free(listOfCourses);
 }
