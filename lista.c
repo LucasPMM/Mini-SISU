@@ -40,13 +40,14 @@ Course **read_students(Course **listOfCourses) {
 	char studentName[100];
 	int firstOp, secondOP;
 	float score;
-
+	char c;
+	while((c = getchar()) != EOF && c != '\n')
+		continue;
 	fgets(studentName, sizeof(studentName), stdin);
 
 	scanf("%f%d%d", &score, &firstOp, &secondOP);
-	setbuf(stdin, NULL);
-	fflush(stdin);
-	
+	// printf("%f %d %d .%s.", score, firstOp, secondOP, studentName);
+
 	listOfCourses[firstOp]->listOfStudents = lst_insert(listOfCourses[firstOp]->listOfStudents, studentName, score, firstOp, secondOP, 0);
 	listOfCourses[secondOP]->listOfStudents = lst_insert(listOfCourses[secondOP]->listOfStudents, studentName, score, firstOp, secondOP, 0);
 
@@ -57,16 +58,18 @@ Course **read_students(Course **listOfCourses) {
 Course *read_informations(Course *l) {
 	char courseName[100];
 	int positions;
-
+	// limpar o buffer
+	char c;
+	while((c = getchar()) != EOF && c != '\n')
+		continue;
 	fgets(courseName, sizeof(courseName), stdin);
 
 	scanf("%d", &positions);
-	setbuf(stdin, NULL);
-	fflush(stdin);
+	
 	return course_insert_course(l, courseName, positions);
 }
 
-void course_print_result(Course *l){
+void course_print_result(Course *l, int hasProx){
 	int waitingListPrinted = 0;
 
 	printf("%s %.2f\n", l->courseName, l->passingScore);
@@ -83,7 +86,8 @@ void course_print_result(Course *l){
 			}
 			i++;
 		}
-		printf("\n");
+		if (hasProx)
+			printf("\n");
 	} else {
 		printf("Lista de espera\n");
 	}
@@ -310,8 +314,6 @@ void init_sisu() {
 
 	// Read the quantity of courses and students
 	scanf("%d%d", &courseQtd, &studentsQtd);
-	setbuf(stdin, NULL);
-	fflush(stdin);
 
 	// Read all courses and number of positions
 	Course **listOfCourses = (Course **) malloc (courseQtd*sizeof(Course *));
@@ -338,7 +340,11 @@ void init_sisu() {
 	// Print all courses and lists
 	// printf("\n");
 	for (i = 0; i < courseQtd; i++) {
-		course_print_result(listOfCourses[i]);
+		int hasProx = 0;
+		if (i + 1 < courseQtd) {
+			hasProx = 1;
+		}
+		course_print_result(listOfCourses[i], hasProx);
 	}
 
 	// Remove list from memory

@@ -24,7 +24,7 @@ Course* course_insert_course(Course *l, char courseName[100], int positions);
 void course_free_course(Course **c, int courseQtd);
 Course **read_students(Course **listOfCourses);
 Course *read_informations(Course *l);
-void course_print_result(Course *l);
+void course_print_result(Course *l, int hasProx);
 Course **check_courses_lists(int courseQtd, Course **listOfCourses);
 Course *course_passing_score(Course *c, int index, int *ListChangedWatcher);
 
