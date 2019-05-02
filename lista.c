@@ -319,9 +319,9 @@ void init_sisu() {
 		listOfCourses = read_students(listOfCourses);	
 	}
 
-	while (ListChangedWatcher) { // O(m²*n)
+	while (ListChangedWatcher) { // O(m²*n²)
 		ListChangedWatcher = 0;
-		// Remove second course option from students that have already passed on first option: O(m*n)
+		// Remove second course option from students that have already passed on first option: O(m²*n)
 		listOfCourses = check_courses_lists(courseQtd, listOfCourses);
 		
 		// Check draws and define passing score: O(m*n)
