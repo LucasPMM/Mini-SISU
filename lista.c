@@ -331,13 +331,12 @@ void init_sisu() {
 	}
 
 	// Print all courses and lists
-	// printf("\n");
 	for (i = 0; i < courseQtd; i++) {
 		int hasProx = 0;
 		if (i + 1 < courseQtd) {
 			hasProx = 1;
 		}
-		course_print_result(listOfCourses[i], hasProx); // O(m*n)
+		course_print_result(listOfCourses[i], hasProx); // O(m + n)
 	}
 
 	// Remove list from memory
