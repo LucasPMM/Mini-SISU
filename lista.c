@@ -46,7 +46,6 @@ Course **read_students(Course **listOfCourses) {
 	fgets(studentName, sizeof(studentName), stdin);
 
 	scanf("%f%d%d", &score, &firstOp, &secondOP);
-	// printf("%f %d %d .%s.", score, firstOp, secondOP, studentName);
 
 	listOfCourses[firstOp]->listOfStudents = lst_insert(listOfCourses[firstOp]->listOfStudents, studentName, score, firstOp, secondOP, 0);
 	listOfCourses[secondOP]->listOfStudents = lst_insert(listOfCourses[secondOP]->listOfStudents, studentName, score, firstOp, secondOP, 0);
@@ -58,7 +57,6 @@ Course **read_students(Course **listOfCourses) {
 Course *read_informations(Course *l) {
 	char courseName[100];
 	int positions;
-	// limpar o buffer
 	char c;
 	while((c = getchar()) != EOF && c != '\n')
 		continue;
