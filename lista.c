@@ -308,23 +308,23 @@ void init_sisu() {
 	// Read the quantity of courses and students
 	scanf("%d%d", &courseQtd, &studentsQtd);
 
-	// Read all courses and number of positions
+	// Read all courses and number of positions: O(m)
 	Course **listOfCourses = (Course **) calloc (courseQtd,sizeof(Course *));
 	for (i = 0; i < courseQtd; i++) {
 		listOfCourses[i] = read_informations(listOfCourses[i]);
 	}
 
-	// Inset all students on right course list
+	// Inset all students on right course list: O(n)
 	for (i = 0; i < studentsQtd; i++) {
 		listOfCourses = read_students(listOfCourses);	
 	}
 
-	while (ListChangedWatcher) {
+	while (ListChangedWatcher) { // O(m²*n)
 		ListChangedWatcher = 0;
-		// Remove second course option from students that have already passed on first option
+		// Remove second course option from students that have already passed on first option: O(m*n)
 		listOfCourses = check_courses_lists(courseQtd, listOfCourses);
 		
-		// Check draws and define passing score
+		// Check draws and define passing score: O(m*n)
 		for (i = 0; i < courseQtd; i++) {
 			listOfCourses[i] = course_passing_score(listOfCourses[i], i, &ListChangedWatcher);
 		}
@@ -337,10 +337,10 @@ void init_sisu() {
 		if (i + 1 < courseQtd) {
 			hasProx = 1;
 		}
-		course_print_result(listOfCourses[i], hasProx);
+		course_print_result(listOfCourses[i], hasProx); // O(m*n)
 	}
 
 	// Remove list from memory
-	course_free_course(listOfCourses, courseQtd);
+	course_free_course(listOfCourses, courseQtd); // O(m*n)
 	free(listOfCourses);
 }
