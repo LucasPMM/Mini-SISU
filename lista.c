@@ -164,9 +164,7 @@ List *lst_insert(List *l, char studentName[100], float score, int firstOp, int s
 	List *p = l;
 	int i;
 
-	// printf("entrei\n");
 	while(p!=NULL && p->score >= score){
-		// printf("inserindo o %s p->score %f coruseindex %d firstop %d p->sec %d", studentName, p->score, courseIndex, firstOp, p->secondOp);
 		if (p->score == score && p->secondOp == courseIndex && firstOp == courseIndex) {
 			break;
 		}
@@ -269,7 +267,7 @@ void init_sisu() {
 		listOfCourses = read_students(listOfCourses);	
 	}
 
-	// Remove second course option from students that have already passed on first option: O(m*n)
+	// Remove second course option from students that have already passed on first option: O(m*n²)
 	listOfCourses = check_courses_lists(courseQtd, listOfCourses);
 		
 	// Check define passing score: O(m*n)
@@ -277,13 +275,13 @@ void init_sisu() {
 		listOfCourses[i] = course_passing_score(listOfCourses[i], i);
 	}
 
-	// Print all courses and lists
+	// Print all courses and lists: O(m*n)
 	for (i = 0; i < courseQtd; i++) {
 		int hasProx = 0;
 		if (i + 1 < courseQtd) {
 			hasProx = 1;
 		}
-		course_print_result(listOfCourses[i], hasProx); // O(m + n)
+		course_print_result(listOfCourses[i], hasProx);
 	}
 
 	// Remove list from memory
