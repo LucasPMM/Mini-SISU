@@ -177,7 +177,8 @@ List *lst_insert(List *l, char studentName[100], float score, int firstOp, int s
 	novo->firstOp = firstOp;
 	novo->secondOp = secondOP;
 	novo->secondOptionWasRemoved = secondOptionWasRemoved;
-	strcpy(novo->courseName, courseName);
+	strcpy(novo->studentName, studentName);
+	novo->studentName[strlen(studentName) - 1] = '\0';
 
 	if (ant == NULL){
 		novo->prox = l;
