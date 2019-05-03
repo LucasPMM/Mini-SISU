@@ -43,8 +43,8 @@ Course **read_students(Course **listOfCourses) {
 
 	scanf("%f%d%d", &score, &firstOp, &secondOP);
 
-	listOfCourses[firstOp]->listOfStudents = lst_insert(listOfCourses[firstOp]->listOfStudents, studentName, score, firstOp, secondOP, 0);
-	listOfCourses[secondOP]->listOfStudents = lst_insert(listOfCourses[secondOP]->listOfStudents, studentName, score, firstOp, secondOP, 0);
+	listOfCourses[firstOp]->listOfStudents = lst_insert(listOfCourses[firstOp]->listOfStudents, studentName, score, firstOp, secondOP, 0, firstOp);
+	listOfCourses[secondOP]->listOfStudents = lst_insert(listOfCourses[secondOP]->listOfStudents, studentName, score, firstOp, secondOP, 0, secondOP);
 
 	return listOfCourses;
 }
@@ -137,31 +137,31 @@ Course *course_passing_score(Course *c, int index, int *ListChangedWatcher) {
 			if (index == l->firstOp) {
 				isFirstOption = 1;
 			}
+			break;
 		}
+		// // If the course in question is the second option of the last placed of the regular list 
+		// if (!isFirstOption && l->prox) {
+		// 	// If the last list score of the first list is equal to the first list score of the waiting list
+		// 	if (c->passingScore == l->prox->score) {
+		// 		// If this course is the first option of the first placed of the waiting list
+		// 		if (l->prox->firstOp == index) {
 
-		// If the course in question is the second option of the last placed of the regular list 
-		if (!isFirstOption && l->prox) {
-			// If the last list score of the first list is equal to the first list score of the waiting list
-			if (c->passingScore == l->prox->score) {
-				// If this course is the first option of the first placed of the waiting list
-				if (l->prox->firstOp == index) {
+		// 			strcpy(waitingStudentName, l->prox->studentName);
+		// 			waitingFirstOp = l->prox->firstOp;
+		// 			waitingSecondOp = l->prox->secondOp;
+		// 			waitingSecondOptionWasRemoved = l->prox->secondOptionWasRemoved;
+		// 			waitingScore = l->prox->score;
 
-					strcpy(waitingStudentName, l->prox->studentName);
-					waitingFirstOp = l->prox->firstOp;
-					waitingSecondOp = l->prox->secondOp;
-					waitingSecondOptionWasRemoved = l->prox->secondOptionWasRemoved;
-					waitingScore = l->prox->score;
+		// 			// Switch users
+		// 			update_user_informations(c->listOfStudents, waitingStudentName, passingScoreStudentName, approvedFirstOp, approvedSecondOp, approvedSecondOptionWasRemoved, approvedScore);
+		// 			update_user_informations(c->listOfStudents, passingScoreStudentName, waitingStudentName, waitingFirstOp, waitingSecondOp, waitingSecondOptionWasRemoved, waitingScore);
 
-					// Switch users
-					update_user_informations(c->listOfStudents, waitingStudentName, passingScoreStudentName, approvedFirstOp, approvedSecondOp, approvedSecondOptionWasRemoved, approvedScore);
-					update_user_informations(c->listOfStudents, passingScoreStudentName, waitingStudentName, waitingFirstOp, waitingSecondOp, waitingSecondOptionWasRemoved, waitingScore);
-
-					isFirstOption = 1;
-					*ListChangedWatcher = 1;
-					break;
-				}
-			}
-		}
+		// 			isFirstOption = 1;
+		// 			*ListChangedWatcher = 1;
+		// 			break;
+		// 		}
+		// 	}
+		// }
 
 	}
 	return c;
@@ -204,13 +204,18 @@ List *lst_retira(List *l, char studentName[100]){
 }
 
 // Function to insert elements on list
-List *lst_insert(List *l, char studentName[100], float score, int firstOp, int secondOP, int secondOptionWasRemoved){
+List *lst_insert(List *l, char studentName[100], float score, int firstOp, int secondOP, int secondOptionWasRemoved, int courseIndex){
 	List *novo;
 	List *ant = NULL;
 	List *p = l;
 	int i;
 
+	// printf("entrei\n");
 	while(p!=NULL && p->score >= score){
+		// printf("inserindo o %s p->score %f coruseindex %d firstop %d p->sec %d", studentName, p->score, courseIndex, firstOp, p->secondOp);
+		if (p->score == score && p->secondOp == courseIndex && firstOp == courseIndex) {
+			break;
+		}
 		ant = p;
 		p = p->prox;
 	}
@@ -319,8 +324,8 @@ void init_sisu() {
 		listOfCourses = read_students(listOfCourses);	
 	}
 
-	while (ListChangedWatcher) { // O(m²*n)
-		ListChangedWatcher = 0;
+	// while (ListChangedWatcher) { // O(m²*n)
+	// 	ListChangedWatcher = 0;
 		// Remove second course option from students that have already passed on first option: O(m*n)
 		listOfCourses = check_courses_lists(courseQtd, listOfCourses);
 		
@@ -328,7 +333,7 @@ void init_sisu() {
 		for (i = 0; i < courseQtd; i++) {
 			listOfCourses[i] = course_passing_score(listOfCourses[i], i, &ListChangedWatcher);
 		}
-	}
+	// }
 
 	// Print all courses and lists
 	for (i = 0; i < courseQtd; i++) {
