@@ -106,63 +106,17 @@ Course **check_courses_lists(int courseQtd, Course **listOfCourses) {
 	return listOfCourses;
 }
 
-Course *course_passing_score(Course *c, int index, int *ListChangedWatcher) {
+Course *course_passing_score(Course *c, int index) {
 	List *l = c->listOfStudents;
-	int positions = c->positions, i, isFirstOption = 0;
+	int positions = c->positions, i;
 	
-	// Student at last position on regular list informations
-	char passingScoreStudentName[100];
-	int approvedFirstOp;
-	int approvedSecondOp;
-	int approvedSecondOptionWasRemoved;
-	float approvedScore;
-
-	// Student on waiting list informations
-	char waitingStudentName[100];
-	int waitingFirstOp;
-	int waitingSecondOp;
-	int waitingSecondOptionWasRemoved;
-	float waitingScore;
-
 	c->passingScore = 0.0;
 
 	for(i = 0; l != NULL; l = l->prox, i++) {
 		if (i + 1 == positions) {
 			c->passingScore = l->score;
-			strcpy(passingScoreStudentName, l->studentName);
-			approvedFirstOp = l->firstOp;
-			approvedSecondOp = l->secondOp;
-			approvedSecondOptionWasRemoved = l->secondOptionWasRemoved;
-			approvedScore = l->score;
-			if (index == l->firstOp) {
-				isFirstOption = 1;
-			}
 			break;
 		}
-		// // If the course in question is the second option of the last placed of the regular list 
-		// if (!isFirstOption && l->prox) {
-		// 	// If the last list score of the first list is equal to the first list score of the waiting list
-		// 	if (c->passingScore == l->prox->score) {
-		// 		// If this course is the first option of the first placed of the waiting list
-		// 		if (l->prox->firstOp == index) {
-
-		// 			strcpy(waitingStudentName, l->prox->studentName);
-		// 			waitingFirstOp = l->prox->firstOp;
-		// 			waitingSecondOp = l->prox->secondOp;
-		// 			waitingSecondOptionWasRemoved = l->prox->secondOptionWasRemoved;
-		// 			waitingScore = l->prox->score;
-
-		// 			// Switch users
-		// 			update_user_informations(c->listOfStudents, waitingStudentName, passingScoreStudentName, approvedFirstOp, approvedSecondOp, approvedSecondOptionWasRemoved, approvedScore);
-		// 			update_user_informations(c->listOfStudents, passingScoreStudentName, waitingStudentName, waitingFirstOp, waitingSecondOp, waitingSecondOptionWasRemoved, waitingScore);
-
-		// 			isFirstOption = 1;
-		// 			*ListChangedWatcher = 1;
-		// 			break;
-		// 		}
-		// 	}
-		// }
-
 	}
 	return c;
 }
@@ -225,16 +179,7 @@ List *lst_insert(List *l, char studentName[100], float score, int firstOp, int s
 	novo->firstOp = firstOp;
 	novo->secondOp = secondOP;
 	novo->secondOptionWasRemoved = secondOptionWasRemoved;
-
-	if (secondOptionWasRemoved) {
-		for (i = 0; i < strlen(studentName); i++) {
-			novo->studentName[i] = studentName[i];
-		}
-	} else {
-		for (i = 0; i < strlen(studentName) - 1; i++) {
-			novo->studentName[i] = studentName[i];
-		}
-	}
+	strcpy(novo->courseName, courseName);
 
 	if (ant == NULL){
 		novo->prox = l;
@@ -308,7 +253,7 @@ int find_student_second_option_index(List *listOfStudents, char studentName[100]
 
 
 void init_sisu() {
-	int i, courseQtd, studentsQtd, k, ListChangedWatcher = 1;
+	int i, courseQtd, studentsQtd, k;
 
 	// Read the quantity of courses and students
 	scanf("%d%d", &courseQtd, &studentsQtd);
@@ -324,16 +269,13 @@ void init_sisu() {
 		listOfCourses = read_students(listOfCourses);	
 	}
 
-	// while (ListChangedWatcher) { // O(m²*n)
-	// 	ListChangedWatcher = 0;
-		// Remove second course option from students that have already passed on first option: O(m*n)
-		listOfCourses = check_courses_lists(courseQtd, listOfCourses);
+	// Remove second course option from students that have already passed on first option: O(m*n)
+	listOfCourses = check_courses_lists(courseQtd, listOfCourses);
 		
-		// Check draws and define passing score: O(m*n)
-		for (i = 0; i < courseQtd; i++) {
-			listOfCourses[i] = course_passing_score(listOfCourses[i], i, &ListChangedWatcher);
-		}
-	// }
+	// Check define passing score: O(m*n)
+	for (i = 0; i < courseQtd; i++) {
+		listOfCourses[i] = course_passing_score(listOfCourses[i], i);
+	}
 
 	// Print all courses and lists
 	for (i = 0; i < courseQtd; i++) {
